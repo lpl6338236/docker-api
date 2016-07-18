@@ -1,0 +1,4 @@
+c49778efc9a742e299eade8b03aa7da3  usr/sbin/nginx
+4f81e5c0f7ba48f176a53cbb159673ee  usr/share/doc/nginx-core/changelog.Debian.gz
+90df7924ed0a97d0f39f1cadb5419623  usr/share/doc/nginx-core/copyright
+c772c6135b03a759f3a9c2ce62f8be70  usr/share/lintian/overrides/nginx-core
