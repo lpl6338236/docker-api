@@ -2,9 +2,9 @@ import commands
 from docker import Client
 class Image:
 
-    def __init__(self):
+    def __init__(self, image='zlpl/ubuntu-test:latest'):
         self.cli = Client(base_url='unix://var/run/docker.sock')
-        self.id = self.cli.create_container(image='ubuntu-test:latest', command='bash', tty=True)['Id']
+        self.id = self.cli.create_container(image=image, command='bash', tty=True)['Id']
         self.cli.start(self.id)
 
     def __del__(self):
@@ -36,14 +36,26 @@ class Image:
 
     #name must come from 'packages'
     def install_package(self, name):
-        (status, output) = commands.getstatusoutput('docker exec '+self.id+' apt-get install -y '+name)
+        (status, output) = commands.getstatusoutput('docker exec '+self.id+' apt-get install --fix-missing -y '+name)
         #return status, output
 
     def remove_package(self, name):
         (status, output) = commands.getstatusoutput('docker exec '+self.id+' apt-get remove -y '+name)
 
+    def remove_package_force(self, name):
+        (status, output) = commands.getstatusoutput('docker exec '+self.id+' dpkg --remove --force-depends '+name)
+
     def restart_nginx(self):
         (status, output) = commands.getstatusoutput('docker exec '+self.id+' service nginx restart')
+
+    def start_nginx(self):
+        (status, output) = commands.getstatusoutput('docker exec '+self.id+' service nginx start')
+
+    def stop_nginx(self):
+        (status, output) = commands.getstatusoutput('docker exec '+self.id+' service nginx stop')
+
+    def kill_nginx(self):
+        (status, output) = commands.getstatusoutput('docker exec '+self.id+' kill `ps -ef|grep "nginx: master"|grep -v grep`')
 
     #It should return True if everything is right.
     def get_html(self):
@@ -65,11 +77,18 @@ class Image:
         return output
     
 
+def create_clean_image():
+    return Image()
+
+def create_wrong_image():
+    return Image('zlpl/ubuntu-nginx-remove-libxml2')
 '''
 An successful running example:
 '''
 
-i = Image()
+#i = create_clean_image()
+i = create_wrong_image()
+
 try:
     i.install_package('nginx')
     i.copy_from_conf('/etc/nginx')
